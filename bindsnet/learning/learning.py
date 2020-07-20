@@ -573,9 +573,16 @@ class MSTDP(LearningRule):
         self.p_minus += a_minus * target_s
 
         # Calculate point eligibility value.
+        aa = self.p_plus.unsqueeze(2)
+        bb = target_s.unsqueeze(1)
+        cc = source_s.unsqueeze(2)
+        dd = self.p_minus.unsqueeze(1)
+        # self.eligibility = torch.bmm(
+        #     self.p_plus.unsqueeze(2), target_s.unsqueeze(1)
+        # ) + torch.bmm(source_s.unsqueeze(2), self.p_minus.unsqueeze(1))
         self.eligibility = torch.bmm(
-            self.p_plus.unsqueeze(2), target_s.unsqueeze(1)
-        ) + torch.bmm(source_s.unsqueeze(2), self.p_minus.unsqueeze(1))
+            aa, bb
+        ) + torch.bmm(cc,dd)
 
         super().update()
 
