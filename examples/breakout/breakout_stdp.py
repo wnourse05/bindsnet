@@ -7,16 +7,27 @@ from bindsnet.environment import GymEnvironment
 from bindsnet.network.nodes import Input, LIFNodes
 from bindsnet.pipeline.action import select_softmax
 
+import torch
+
 # Build network.
 network = Network(dt=1.0)
-
+if torch.cuda.is_available():
+    device = "cuda:0"
+else:
+    device = "cpu"
+torch.cuda.set_device(device)
+# network.to(dev)
 # Layers of neurons.
 inpt = Input(n=80 * 80, shape=[1, 1, 1, 80, 80], traces=True)
+# inpt.to(dev)
 middle = LIFNodes(n=100, traces=True)
+# middle.to(dev)
 out = LIFNodes(n=4, refrac=0, traces=True)
+# out.to(dev)
 
 # Connections between layers.
 inpt_middle = Connection(source=inpt, target=middle, wmin=0, wmax=1e-1)
+# inpt_middle.to(dev)
 middle_out = Connection(
     source=middle,
     target=out,
@@ -26,6 +37,7 @@ middle_out = Connection(
     nu=1e-1,
     norm=0.5 * middle.n,
 )
+# middle_out.to(dev)
 
 # Add all layers and connections to the network.
 network.add_layer(inpt, name="Input Layer")
@@ -33,6 +45,8 @@ network.add_layer(middle, name="Hidden Layer")
 network.add_layer(out, name="Output Layer")
 network.add_connection(inpt_middle, source="Input Layer", target="Hidden Layer")
 network.add_connection(middle_out, source="Hidden Layer", target="Output Layer")
+
+network.to(device)
 
 # Load the Breakout environment.
 environment = GymEnvironment("BreakoutDeterministic-v4")
@@ -50,6 +64,7 @@ environment_pipeline = EnvironmentPipeline(
     delta=1,
     plot_interval=1,
     render_interval=1,
+    # device=dev,
 )
 
 
@@ -67,7 +82,6 @@ def run_pipeline(pipeline, episode_count):
 
             is_done = result[2]
         print(f"Episode {i} total reward:{total_reward}")
-
 
 print("Training: ")
 run_pipeline(environment_pipeline, episode_count=100)
