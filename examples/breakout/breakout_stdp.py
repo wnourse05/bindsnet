@@ -64,7 +64,7 @@ environment_pipeline = EnvironmentPipeline(
     delta=1,
     plot_interval=1,
     render_interval=1,
-    # device=dev,
+    device=device,
 )
 
 

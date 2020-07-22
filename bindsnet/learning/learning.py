@@ -547,11 +547,11 @@ class MSTDP(LearningRule):
 
         # Initialize eligibility, P^+, and P^-.
         if not hasattr(self, "p_plus"):
-            self.p_plus = torch.zeros(batch_size, *self.source.shape)
+            self.p_plus = torch.zeros(batch_size, *self.source.shape, device=self.source.s.device)
         if not hasattr(self, "p_minus"):
-            self.p_minus = torch.zeros(batch_size, *self.target.shape)
+            self.p_minus = torch.zeros(batch_size, *self.target.shape, device=self.source.s.device)
         if not hasattr(self, "eligibility"):
-            self.eligibility = torch.zeros(batch_size, *self.connection.w.shape)
+            self.eligibility = torch.zeros(batch_size, *self.connection.w.shape, device=self.source.s.device)
 
         # Reshape pre- and post-synaptic spikes.
         source_s = self.source.s.view(batch_size, -1).float()

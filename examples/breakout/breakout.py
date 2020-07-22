@@ -6,6 +6,14 @@ from bindsnet.environment import GymEnvironment
 from bindsnet.network.nodes import Input, IzhikevichNodes
 from bindsnet.pipeline.action import select_softmax
 
+import torch
+
+if torch.cuda.is_available():
+    device = "cuda:0"
+else:
+    device = "cpu"
+torch.cuda.set_device(device)
+
 # Build network.
 network = Network(dt=1.0)
 
@@ -25,6 +33,8 @@ network.add_layer(out, name="Output Layer")
 network.add_connection(inpt_middle, source="Input Layer", target="Hidden Layer")
 network.add_connection(middle_out, source="Hidden Layer", target="Output Layer")
 
+network.to(device)
+
 # Load the Breakout environment.
 environment = GymEnvironment("BreakoutDeterministic-v4")
 environment.reset()
@@ -41,6 +51,7 @@ pipeline = EnvironmentPipeline(
     delta=1,
     plot_interval=1,
     render_interval=1,
+    device=device,
 )
 
 # Run environment simulation for 100 episodes.
